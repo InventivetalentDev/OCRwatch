@@ -1,5 +1,6 @@
 # Import required packages
 import json
+from datetime import datetime
 
 import cv2
 import pytesseract
@@ -11,7 +12,7 @@ enemies_end = (1160, 920)
 self_hero_start = (1180, 350)
 self_hero_end = (1460, 410)
 match_info_start = (40, 25)
-match_info_end = (380, 110)
+match_info_end = (800, 110)
 
 name_offset = 95
 name_width = 210
@@ -80,10 +81,10 @@ def process_self_hero(im):
 def process_match_info(im):
     mode_map_img = im[0:mode_height, mode_offset:]
     cv2.imwrite(f"dbg/mode_map.jpg", mode_map_img)
-    mode_map = ocr(mode_map_img, 0, f"--psm 7  -c tessedit_char_whitelist=|{a_to_z}", crop=False).replace('\n', '')
+    mode_map = ocr(mode_map_img, 0, f"--psm 7  -c tessedit_char_whitelist=|:{a_to_z}", crop=False).replace('\n', '')
     print("mode+map", mode_map)
 
-    [mode, map] = mode_map.split("|")
+    mode, map, *rest = mode_map.split("|")
 
     time_img = im[time_offset_y:time_offset_y + time_height, time_offset_x:time_offset_y + time_width]
     cv2.imwrite(f"dbg/time.jpg", time_img)
@@ -219,6 +220,16 @@ def process_screenshot(img):
     enemies_info = process_player_list(enemies);
     print(enemies_info)
     write_json("enemies.json", enemies_info)
+
+    return {
+        "time": datetime.now().timestamp(),
+        "match": match_info,
+        "self": self_hero_info,
+        "players": {
+            "allies": allies_info,
+            "enemies": enemies_info
+        }
+    }
 
 
 def process_screenshot_file(filename):
