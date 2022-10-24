@@ -86,6 +86,12 @@ def process_match_info(im):
 
     mode, map, *rest = mode_map.split("|")
 
+    if len(mode) <= 0:
+        raise Exception("empty mode")
+
+    if len(map) <= 0:
+        raise Exception("empty map")
+
     time_img = im[time_offset_y:time_offset_y + time_height, time_offset_x:time_offset_y + time_width]
     cv2.imwrite(f"dbg/time.jpg", time_img)
     time = ocr(time_img, 0, f"--psm 7  -c tessedit_char_whitelist={zero_to_nine}:", crop=False).replace('\n', '')
