@@ -5,10 +5,14 @@ from datetime import datetime
 import cv2
 import pytesseract
 
+from util import rotate
+
 allies_start = (312, 193)
 allies_end = (1160, 500)
 enemies_start = (312, 613)
 enemies_end = (1160, 920)
+self_name_start = (170, 950)
+self_name_end = (415,1000)
 self_hero_start = (1180, 350)
 self_hero_end = (1460, 410)
 match_info_start = (40, 25)
@@ -67,6 +71,17 @@ def str_to_number(str):
         return 0
     return int(str)
 
+def process_self_name(im):
+    rotated = rotate(im, -4)  # rotate to make the text straight
+    cv2.imwrite(f"dbg/name_rotated.jpg", rotated)
+    cropped = rotated[16:38, 5:240]
+    cv2.imwrite(f"dbg/name_cropped.jpg", cropped)
+    name = ocr(cropped, 0, "--psm 7 -c load_system_dawg=0").replace('\n', '')
+    print("name", name)
+
+    return {
+        "name": name
+    }
 
 def process_self_hero(im):
     cv2.imwrite(f"dbg/hero.jpg", im)
@@ -209,6 +224,12 @@ def process_screenshot(img):
     print(self_hero_info)
     write_json("hero.json", self_hero_info)
 
+    self_name = gray[self_name_start[1]:self_name_end[1], self_name_start[0]:self_name_end[0]]
+    cv2.imwrite("dbg/name.jpg", self_name)
+    self_name_info = process_self_name(self_name)
+    print(self_name_info)
+    write_json("name.json", self_name_info)
+
     match = gray[match_info_start[1]:match_info_end[1], match_info_start[0]:match_info_end[0]]
     cv2.imwrite("dbg/match.jpg", match)
     match_info = process_match_info(match)
@@ -230,7 +251,7 @@ def process_screenshot(img):
     return {
         "time": datetime.now().timestamp(),
         "match": match_info,
-        "self": self_hero_info,
+        "self": self_hero_info | self_name_info,
         "players": {
             "allies": allies_info,
             "enemies": enemies_info
