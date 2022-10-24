@@ -12,3 +12,4 @@ def rotate(image, angle, center = None, scale = 1.0):
     rotated = cv2.warpAffine(image, M, (w, h))
 
     return rotated
+

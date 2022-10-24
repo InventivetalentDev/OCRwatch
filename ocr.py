@@ -4,6 +4,7 @@ from datetime import datetime
 
 import cv2
 import pytesseract
+import numpy as np
 
 from util import rotate
 
@@ -12,7 +13,7 @@ allies_end = (1160, 500)
 enemies_start = (312, 613)
 enemies_end = (1160, 920)
 self_name_start = (170, 950)
-self_name_end = (415,1000)
+self_name_end = (415, 1000)
 self_hero_start = (1180, 350)
 self_hero_end = (1460, 410)
 match_info_start = (40, 25)
@@ -41,6 +42,7 @@ time_height = 24
 time_width = 75
 
 row_height = 62
+row_padding = 16
 
 zero_to_nine = "0123456789"
 a_to_z = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -71,6 +73,7 @@ def str_to_number(str):
         return 0
     return int(str)
 
+
 def process_self_name(im):
     rotated = rotate(im, -4)  # rotate to make the text straight
     cv2.imwrite(f"dbg/name_rotated.jpg", rotated)
@@ -82,6 +85,7 @@ def process_self_name(im):
     return {
         "name": name
     }
+
 
 def process_self_hero(im):
     cv2.imwrite(f"dbg/hero.jpg", im)
@@ -120,43 +124,67 @@ def process_match_info(im):
     }
 
 
+# https://stackoverflow.com/questions/33497736/opencv-adjusting-photo-with-skew-angle-tilt
+# https://docs.opencv.org/3.4/da/d6e/tutorial_py_geometric_transformations.html
+def deskew_player_name(name_img):
+    rows, cols = name_img.shape
+    pts1 = np.float32(
+        [[5, 0],
+         [95, 0],
+         [0, 25],
+         [90, 25]]
+    )
+    pts2 = np.float32(
+        [[-5, 0],
+         [95, 0],
+         [-3, 25],
+         [97, 25]]
+    )
+    M = cv2.getPerspectiveTransform(pts1, pts2)
+    dst = cv2.warpPerspective(name_img, M, (cols, rows))
+
+    return dst
+
+
 def process_player_list(im):
     out = []
     for i in range(0, 5):
         row_y = row_height * i
 
-        name_img = im[row_y:row_y + row_height, name_offset:name_offset + name_width]
+        name_img = im[row_y + row_padding:row_y + row_height - row_padding, name_offset:name_offset + name_width]
         # name_img = crop_top_bottom(name_img)
         cv2.imwrite(f"dbg/name{i}.jpg", name_img)
+        name_img = deskew_player_name(name_img)
+        cv2.imwrite(f"dbg/name{i}_deskew.jpg", name_img)
         name = ocr(name_img, i, "--psm 7 -c load_system_dawg=0").replace('\n', '')
         print("name", name)
 
-        elims_img = im[row_y:row_y + row_height, elims_offset:elims_offset + elims_width]
+        elims_img = im[row_y + row_padding:row_y + row_height - row_padding, elims_offset:elims_offset + elims_width]
         cv2.imwrite(f"dbg/elims{i}.jpg", elims_img)
         elims = str_to_number(ocr(elims_img, i, f"--psm 13 -c tessedit_char_whitelist={zero_to_nine}"))
         print("elims", elims)
 
-        assist_img = im[row_y:row_y + row_height, assist_offset:assist_offset + assist_width]
+        assist_img = im[row_y + row_padding:row_y + row_height - row_padding, assist_offset:assist_offset + assist_width]
         cv2.imwrite(f"dbg/assist{i}.jpg", assist_img)
         assists = str_to_number(ocr(assist_img, i, f"--psm 13 -c tessedit_char_whitelist={zero_to_nine}"))
         print("assists", assists)
 
-        deaths_img = im[row_y:row_y + row_height, deaths_offset:deaths_offset + deaths_width]
+        deaths_img = im[row_y + row_padding:row_y + row_height - row_padding, deaths_offset:deaths_offset + deaths_width]
         cv2.imwrite(f"dbg/deaths{i}.jpg", deaths_img)
         deaths = str_to_number(ocr(deaths_img, i, f"--psm 13 -c tessedit_char_whitelist={zero_to_nine}"))
         print("deaths", deaths)
 
-        dmg_img = im[row_y:row_y + row_height, dmg_offset:dmg_offset + dmg_width]
+        dmg_img = im[row_y + row_padding:row_y + row_height - row_padding, dmg_offset:dmg_offset + dmg_width]
         cv2.imwrite(f"dbg/dmg{i}.jpg", dmg_img)
         dmg = str_to_number(ocr(dmg_img, i, f"--psm 13 -c tessedit_char_whitelist={zero_to_nine},"))
         print("dmg", dmg)
 
-        heal_img = im[row_y:row_y + row_height, heals_offset:heals_offset + heals_width]
+        heal_img = im[row_y + row_padding:row_y + row_height - row_padding, heals_offset:heals_offset + heals_width]
         cv2.imwrite(f"dbg/heal{i}.jpg", heal_img)
         heal = str_to_number(ocr(heal_img, i, f"--psm 13 -c tessedit_char_whitelist={zero_to_nine},"))
         print("heal", heal)
 
-        mit_img = im[row_y:row_y + row_height, mit_offset:mit_offset + mit_width]
+        mit_img = im[row_y + row_padding:row_y + row_height - row_padding, mit_offset:mit_offset + mit_width]
         cv2.imwrite(f"dbg/mit{i}.jpg", mit_img)
         mit = str_to_number(ocr(mit_img, i, f"--psm 13 -c tessedit_char_whitelist={zero_to_nine},"))
         print("mit", mit)
