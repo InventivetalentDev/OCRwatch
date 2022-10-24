@@ -37,7 +37,7 @@ mit_width = 100
 mode_offset = 60
 mode_height = 45
 time_offset_y = 50
-time_offset_x = 65
+time_offset_x = 68
 time_height = 24
 time_width = 75
 
@@ -82,6 +82,9 @@ def process_self_name(im):
     name = ocr(cropped, 0, "--psm 7 -c load_system_dawg=0").replace('\n', '')
     print("name", name)
 
+    if len(name) <= 0:
+        raise Exception("empty name")
+
     return {
         "name": name
     }
@@ -89,8 +92,11 @@ def process_self_name(im):
 
 def process_self_hero(im):
     cv2.imwrite(f"dbg/hero.jpg", im)
-    name = ocr(im, 0, "--psm 7 -c load_system_dawg=0").replace('\n', '')
+    name = ocr(im, 0, f"--psm 7 -c load_system_dawg=0 tessedit_char_whitelist={zero_to_nine}").replace('\n', '')
     print("hero", name)
+
+    if len(name) <= 0:
+        raise Exception("empty hero")
 
     return {
         "hero": name
@@ -100,7 +106,7 @@ def process_self_hero(im):
 def process_match_info(im):
     mode_map_img = im[0:mode_height, mode_offset:]
     cv2.imwrite(f"dbg/mode_map.jpg", mode_map_img)
-    mode_map = ocr(mode_map_img, 0, f"--psm 7  -c tessedit_char_whitelist=|:{a_to_z}", crop=False).replace('\n', '')
+    mode_map = ocr(mode_map_img, 0, f"--psm 7  -c tessedit_char_whitelist=|:-{a_to_z}", crop=False).replace('\n', '')
     print("mode+map", mode_map)
 
     mode, map, *rest = mode_map.split("|")
@@ -111,6 +117,10 @@ def process_match_info(im):
     if len(map) <= 0:
         raise Exception("empty map")
 
+    is_comp = "COMPETITIVE" in mode
+    if is_comp:
+        mode = mode[len("COMPETITIVE-"):]
+
     time_img = im[time_offset_y:time_offset_y + time_height, time_offset_x:time_offset_y + time_width]
     cv2.imwrite(f"dbg/time.jpg", time_img)
     time = ocr(time_img, 0, f"--psm 7  -c tessedit_char_whitelist={zero_to_nine}:", crop=False).replace('\n', '')
@@ -120,6 +130,7 @@ def process_match_info(im):
         "mode_map": mode_map,
         "mode": mode,
         "map": map,
+        "competitive": is_comp,
         "time": time
     }
 
@@ -278,6 +289,7 @@ def process_screenshot(img):
 
     return {
         "time": datetime.now().timestamp(),
+        "state": "in_progress",
         "match": match_info,
         "self": self_hero_info | self_name_info,
         "players": {
