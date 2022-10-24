@@ -4,6 +4,7 @@ import threading
 import time
 import traceback
 
+from output import append_to_csv
 from screenshot import take_screenshot
 from ocr import process_screenshot_file, write_json
 
@@ -16,31 +17,12 @@ def track(lock):
         with lock:
             result = process_screenshot_file(screenshot_name)
 
-        fields = [result['time'], result['match']['mode'], result['match']['map'], result['match']['time'], result['self']['hero']]
-
-        for i in range(0, 5):
-            fields.append(result['players']['allies'][i]['name'])
-            fields.append(result['players']['allies'][i]['elims'])
-            fields.append(result['players']['allies'][i]['assists'])
-            fields.append(result['players']['allies'][i]['deaths'])
-            fields.append(result['players']['allies'][i]['dmg'])
-            fields.append(result['players']['allies'][i]['heal'])
-            fields.append(result['players']['allies'][i]['mit'])
-
-        for i in range(0, 5):
-            fields.append(result['players']['enemies'][i]['name'])
-            fields.append(result['players']['enemies'][i]['elims'])
-            fields.append(result['players']['enemies'][i]['assists'])
-            fields.append(result['players']['enemies'][i]['deaths'])
-            fields.append(result['players']['enemies'][i]['dmg'])
-            fields.append(result['players']['enemies'][i]['heal'])
-            fields.append(result['players']['enemies'][i]['mit'])
-
         write_json('latest.json', result)
 
-        with open(r'log.csv', 'a', newline='') as f:
-            writer = csv.writer(f)
-            writer.writerow(fields)
+        append_to_csv(result)
+
+
+
     except:
         print("track() broke")
         print(traceback.format_exc())
