@@ -92,7 +92,7 @@ def process_self_name(im):
 
 def process_self_hero(im):
     cv2.imwrite(f"dbg/hero.jpg", im)
-    name = ocr(im, 0, f"--psm 7 -c load_system_dawg=0 tessedit_char_whitelist={zero_to_nine}").replace('\n', '')
+    name = ocr(im, 0, f"--psm 7 -c load_system_dawg=0 tessedit_char_whitelist={zero_to_nine}", inv=True).replace('\n', '')
     print("hero", name)
 
     if len(name) <= 0:
@@ -118,8 +118,10 @@ def process_match_info(im):
         raise Exception("empty map")
 
     is_comp = "COMPETITIVE" in mode
-    if is_comp:
-        mode = mode[len("COMPETITIVE-"):]
+    if "-COMPETITIVE" in mode:
+        mode = mode[:-len("-COMPETITIVE")]
+    if "COMPETITIVE" in mode:
+        mode = mode[:-len("COMPETITIVE")]
 
     time_img = im[time_offset_y:time_offset_y + time_height, time_offset_x:time_offset_y + time_width]
     cv2.imwrite(f"dbg/time.jpg", time_img)
@@ -172,32 +174,32 @@ def process_player_list(im):
 
         elims_img = im[row_y + row_padding:row_y + row_height - row_padding, elims_offset:elims_offset + elims_width]
         cv2.imwrite(f"dbg/elims{i}.jpg", elims_img)
-        elims = str_to_number(ocr(elims_img, i, f"--psm 13 -c tessedit_char_whitelist={zero_to_nine}"))
+        elims = str_to_number(ocr(elims_img, i, f"--psm 8 -c tessedit_char_whitelist={zero_to_nine}"))
         print("elims", elims)
 
         assist_img = im[row_y + row_padding:row_y + row_height - row_padding, assist_offset:assist_offset + assist_width]
         cv2.imwrite(f"dbg/assist{i}.jpg", assist_img)
-        assists = str_to_number(ocr(assist_img, i, f"--psm 13 -c tessedit_char_whitelist={zero_to_nine}"))
+        assists = str_to_number(ocr(assist_img, i, f"--psm 8 -c tessedit_char_whitelist={zero_to_nine}"))
         print("assists", assists)
 
         deaths_img = im[row_y + row_padding:row_y + row_height - row_padding, deaths_offset:deaths_offset + deaths_width]
         cv2.imwrite(f"dbg/deaths{i}.jpg", deaths_img)
-        deaths = str_to_number(ocr(deaths_img, i, f"--psm 13 -c tessedit_char_whitelist={zero_to_nine}"))
+        deaths = str_to_number(ocr(deaths_img, i, f"--psm 8 -c tessedit_char_whitelist={zero_to_nine}"))
         print("deaths", deaths)
 
         dmg_img = im[row_y + row_padding:row_y + row_height - row_padding, dmg_offset:dmg_offset + dmg_width]
         cv2.imwrite(f"dbg/dmg{i}.jpg", dmg_img)
-        dmg = str_to_number(ocr(dmg_img, i, f"--psm 13 -c tessedit_char_whitelist={zero_to_nine},"))
+        dmg = str_to_number(ocr(dmg_img, i, f"--psm 8 -c tessedit_char_whitelist={zero_to_nine},"))
         print("dmg", dmg)
 
         heal_img = im[row_y + row_padding:row_y + row_height - row_padding, heals_offset:heals_offset + heals_width]
         cv2.imwrite(f"dbg/heal{i}.jpg", heal_img)
-        heal = str_to_number(ocr(heal_img, i, f"--psm 13 -c tessedit_char_whitelist={zero_to_nine},"))
+        heal = str_to_number(ocr(heal_img, i, f"--psm 8 -c tessedit_char_whitelist={zero_to_nine},"))
         print("heal", heal)
 
         mit_img = im[row_y + row_padding:row_y + row_height - row_padding, mit_offset:mit_offset + mit_width]
         cv2.imwrite(f"dbg/mit{i}.jpg", mit_img)
-        mit = str_to_number(ocr(mit_img, i, f"--psm 13 -c tessedit_char_whitelist={zero_to_nine},"))
+        mit = str_to_number(ocr(mit_img, i, f"--psm 8 -c tessedit_char_whitelist={zero_to_nine},"))
         print("mit", mit)
 
         out.append({
@@ -214,9 +216,10 @@ def process_player_list(im):
     return out
 
 
-def ocr(img, offs, args, crop=True):
+def ocr(img, offs, args, crop=True, inv=False):
     # Performing OTSU threshold
-    ret, thresh1 = cv2.threshold(img, 0, 255, cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV)
+    thr = cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV if inv else cv2.THRESH_OTSU
+    ret, thresh1 = cv2.threshold(img, 0, 255, thr)
     cv2.imwrite(f"dbg/thresh{offs}.jpg", thresh1)
 
     # Applying dilation on the threshold image

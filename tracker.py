@@ -41,14 +41,12 @@ def track_loop(lock):
     while 1:
         try:
             if keyboard.is_pressed('tab'):
-                with lock:
-                    print('Tab pressed!')
+                print('Tab pressed!')
                 tab_pressed_time += 1
                 time.sleep(0.1)
                 if (tab_pressed_time == 5):  # only track once at 3 ticks, then wait until tab is released again
                     tab_pressed_time = 0
-                    with lock:
-                        print('track')
+                    print('track')
                     track(lock)
                     time.sleep(10)  # wait a bit before tracking again
                 continue
