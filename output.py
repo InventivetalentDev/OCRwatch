@@ -40,7 +40,13 @@ def write_to_influx(result):
     parsed_time = datetime.strptime(result['match']['time'], "%M:%S")
     duration = timedelta(minutes=parsed_time.minute, seconds=parsed_time.second)
 
+    print("")
+    print("")
+
     print(result['match']['mode'] + " - " + ("Competitive" if result['match']['competitive'] else "Quick Play") + " | " + result['match']['map'])
+    print("Time: " + result['match']['time'])
+
+    headers = ["Name", "E", "A", "D", "Damage", "Heal", "MIT"]
 
     ally_total_elims = 0
     ally_total_assists = 0
@@ -69,7 +75,7 @@ def write_to_influx(result):
         row.append(result['players']['allies'][i]['mit'])
         ally_table.append(row)
 
-    print(tabulate(ally_table, headers=["Name", "E", "A", "D", "Damage", "Heal", "MIT"]))
+    print(tabulate(ally_table, headers=headers, tablefmt="grid"))
 
     enemy_total_elims = 0
     enemy_total_assists = 0
@@ -98,18 +104,21 @@ def write_to_influx(result):
         row.append(result['players']['enemies'][i]['mit'])
         enemy_table.append(row)
 
-    print(tabulate(enemy_table, headers=["Name", "E", "A", "D", "Damage", "Heal", "MIT"]))
+    print(tabulate(enemy_table, headers=headers, tablefmt="grid"))
+
+    print("")
+    print("")
 
     p = Point("match_stats") \
         .tag("mode", result['match']['mode']) \
         .tag("map", result['match']['map']) \
         .tag("hero", result['self']['hero']) \
-        .tag("competitive", 'true' if result['match']['competitive'] else 'false')\
-        .tag("state", result['state'])\
-        .field("duration", duration.total_seconds())\
-        .field("total_ally_elims", ally_total_elims)\
-        .field("total_ememy_elims", enemy_total_elims)\
-        .field("total_ally_deaths", ally_total_deaths)\
+        .tag("competitive", 'true' if result['match']['competitive'] else 'false') \
+        .tag("state", result['state']) \
+        .field("duration", duration.total_seconds()) \
+        .field("total_ally_elims", ally_total_elims) \
+        .field("total_ememy_elims", enemy_total_elims) \
+        .field("total_ally_deaths", ally_total_deaths) \
         .field("total_enemy_deaths", enemy_total_deaths)
     print(p)
     influx_write_api.write(bucket="overwatch", record=p)

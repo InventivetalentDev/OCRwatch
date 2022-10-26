@@ -19,7 +19,8 @@ self_hero_end = (1460, 410)
 match_info_start = (120, 30)
 match_info_end = (570, 90)
 
-name_offset = 95
+name_offset = 145
+name_offset_enemy = 90
 name_width = 210
 elims_offset = 384
 elims_width = 50
@@ -159,12 +160,12 @@ def deskew_player_name(name_img):
     return dst
 
 
-def process_player_list(im):
+def process_player_list(im, name_offs):
     out = []
     for i in range(0, 5):
         row_y = row_height * i
 
-        name_img = im[row_y + row_padding:row_y + row_height - row_padding, name_offset:name_offset + name_width]
+        name_img = im[row_y + row_padding:row_y + row_height - row_padding, name_offs:name_offs + name_width]
         # name_img = crop_top_bottom(name_img)
         cv2.imwrite(f"dbg/name{i}.jpg", name_img)
         name_img = deskew_player_name(name_img)
@@ -280,13 +281,13 @@ def process_screenshot(img):
 
     allies = gray[allies_start[1]:allies_end[1], allies_start[0]:allies_end[0]]
     cv2.imwrite("dbg/allies.jpg", allies)
-    allies_info = process_player_list(allies)
+    allies_info = process_player_list(allies, name_offset)
     print(allies_info)
     write_json("allies.json", allies_info)
 
     enemies = gray[enemies_start[1]:enemies_end[1], enemies_start[0]:enemies_end[0]]
     cv2.imwrite("dbg/enemies.jpg", enemies)
-    enemies_info = process_player_list(enemies);
+    enemies_info = process_player_list(enemies, name_offset_enemy)
     print(enemies_info)
     write_json("enemies.json", enemies_info)
 
