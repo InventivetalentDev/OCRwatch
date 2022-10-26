@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
+from tabulate import tabulate
 
 
 def append_to_csv(result):
@@ -39,12 +40,16 @@ def write_to_influx(result):
     parsed_time = datetime.strptime(result['match']['time'], "%M:%S")
     duration = timedelta(minutes=parsed_time.minute, seconds=parsed_time.second)
 
+    print(result['match']['mode'] + " - " + ("Competitive" if result['match']['competitive'] else "Quick Play") + " | " + result['match']['map'])
+
     ally_total_elims = 0
     ally_total_assists = 0
     ally_total_deaths = 0
     ally_total_dmg = 0
     ally_total_heal = 0
     ally_total_mit = 0
+
+    ally_table = []
 
     for i in range(0, 5):
         ally_total_elims += result['players']['allies'][i]['elims']
@@ -54,12 +59,26 @@ def write_to_influx(result):
         ally_total_heal += result['players']['allies'][i]['heal']
         ally_total_mit += result['players']['allies'][i]['mit']
 
+        row = []
+        row.append(result['players']['allies'][i]['name'])
+        row.append(result['players']['allies'][i]['elims'])
+        row.append(result['players']['allies'][i]['assists'])
+        row.append(result['players']['allies'][i]['deaths'])
+        row.append(result['players']['allies'][i]['dmg'])
+        row.append(result['players']['allies'][i]['heal'])
+        row.append(result['players']['allies'][i]['mit'])
+        ally_table.append(row)
+
+    print(tabulate(ally_table, headers=["Name", "E", "A", "D", "Damage", "Heal", "MIT"]))
+
     enemy_total_elims = 0
     enemy_total_assists = 0
     enemy_total_deaths = 0
     enemy_total_dmg = 0
     enemy_total_heal = 0
     enemy_total_mit = 0
+
+    enemy_table = []
 
     for i in range(0, 5):
         enemy_total_elims += result['players']['enemies'][i]['elims']
@@ -68,6 +87,18 @@ def write_to_influx(result):
         enemy_total_dmg += result['players']['enemies'][i]['dmg']
         enemy_total_heal += result['players']['enemies'][i]['heal']
         enemy_total_mit += result['players']['enemies'][i]['mit']
+
+        row = []
+        row.append(result['players']['enemies'][i]['name'])
+        row.append(result['players']['enemies'][i]['elims'])
+        row.append(result['players']['enemies'][i]['assists'])
+        row.append(result['players']['enemies'][i]['deaths'])
+        row.append(result['players']['enemies'][i]['dmg'])
+        row.append(result['players']['enemies'][i]['heal'])
+        row.append(result['players']['enemies'][i]['mit'])
+        enemy_table.append(row)
+
+    print(tabulate(enemy_table, headers=["Name", "E", "A", "D", "Damage", "Heal", "MIT"]))
 
     p = Point("match_stats") \
         .tag("mode", result['match']['mode']) \

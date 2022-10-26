@@ -16,8 +16,8 @@ self_name_start = (170, 950)
 self_name_end = (415, 1000)
 self_hero_start = (1180, 350)
 self_hero_end = (1460, 410)
-match_info_start = (40, 25)
-match_info_end = (800, 110)
+match_info_start = (120, 30)
+match_info_end = (570, 90)
 
 name_offset = 95
 name_width = 210
@@ -34,12 +34,12 @@ heals_width = 100
 mit_offset = 765
 mit_width = 100
 
-mode_offset = 60
-mode_height = 45
-time_offset_y = 50
-time_offset_x = 68
-time_height = 24
-time_width = 75
+mode_offset = 0
+mode_height = 35
+time_offset_y = 30
+time_offset_x = 65
+time_height = 35
+time_width = 100
 
 row_height = 62
 row_padding = 16
@@ -105,7 +105,7 @@ def process_self_hero(im):
 
 def process_match_info(im):
     mode_map_img = im[0:mode_height, mode_offset:]
-    cv2.imwrite(f"dbg/mode_map.jpg", mode_map_img)
+    cv2.imwrite(f"dbg/mode.jpg", mode_map_img)
     mode_map = ocr(mode_map_img, 0, f"--psm 7  -c tessedit_char_whitelist=|:-{a_to_z}", crop=False).replace('\n', '')
     print("mode+map", mode_map)
 
