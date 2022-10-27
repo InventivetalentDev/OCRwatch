@@ -1,12 +1,11 @@
 # Import required packages
-import json
 from datetime import datetime
 
 import cv2
 import pytesseract
 import numpy as np
 
-from util import rotate
+from util import rotate, write_json
 
 allies_start = (312, 193)
 allies_end = (1160, 500)
@@ -57,11 +56,6 @@ pytesseract.pytesseract.tesseract_cmd = 'S:\Program Files\Tesseract-OCR\\tessera
 # A smaller value like (10, 10) will detect
 # each word instead of a sentence.
 rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 10))
-
-
-def write_json(file, data):
-    with open(file, 'w') as f:
-        json.dump(data, f, indent=4)
 
 
 def crop_top_bottom(img):

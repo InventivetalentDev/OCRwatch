@@ -64,7 +64,7 @@ def cmd_loop(q, lock):
     while 1:
         input()
         with lock:
-            print("Type 'win' 'loss' or 'draw' to record match result")
+            print("Type '[w]in' '[l]oss' or '[d]raw' to record result of latest match - or 'quit' to exit")
             cmd = input('> ')
 
         q.put(cmd)
@@ -100,7 +100,14 @@ def invalid_input(lock):
 
 
 def main():
-    cmd_actions = {'win': action_win, 'loss': action_loss, 'draw': action_draw}
+    cmd_actions = {
+        'win': action_win,
+        'w': action_win,
+        'loss': action_loss,
+        'l': action_loss,
+        'draw': action_draw,
+        'd': action_draw
+    }
     cmd_queue = queue.Queue()
     stdout_lock = threading.Lock()
 

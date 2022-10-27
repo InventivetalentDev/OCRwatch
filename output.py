@@ -6,7 +6,7 @@ from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 from tabulate import tabulate
 
-from ocr import write_json
+from util import write_json
 
 config = configparser.ConfigParser()
 config.read("config.ini")
