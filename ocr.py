@@ -16,7 +16,7 @@ self_name_end = (415, 1000)
 self_hero_start = (1180, 350)
 self_hero_end = (1460, 410)
 match_info_start = (120, 30)
-match_info_end = (570, 90)
+match_info_end = (800, 90)
 
 name_offset = 145
 name_offset_enemy = 90
