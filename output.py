@@ -1,9 +1,28 @@
+import configparser
 import csv
 from datetime import datetime, timedelta
 
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 from tabulate import tabulate
+
+from ocr import write_json
+
+config = configparser.ConfigParser()
+config.read("config.ini")
+
+
+def write_output(result):
+    if config.getboolean("output", "json"):
+        write_to_json(result)
+    if config.getboolean("output", "csv"):
+        append_to_csv(result)
+    if config.getboolean("output", "influx"):
+        write_to_influx(result)
+
+
+def write_to_json(result):
+    write_json('latest.json', result)
 
 
 def append_to_csv(result):

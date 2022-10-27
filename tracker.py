@@ -4,14 +4,14 @@ import threading
 import time
 import traceback
 
-from output import append_to_csv, write_to_influx
+from output import append_to_csv, write_to_influx, write_output
 from screenshot import take_screenshot
 from ocr import process_screenshot_file, write_json
 
 import keyboard
 
-
 latest = {}
+
 
 def track(lock):
     global latest
@@ -31,10 +31,10 @@ def track(lock):
         print("track() broke")
         print(traceback.format_exc())
 
+
 def write_latest():
-    write_json('latest.json', latest)
-    append_to_csv(latest)
-    write_to_influx(latest)
+    write_output(latest)
+
 
 def track_loop(lock):
     tab_pressed_time = 0
@@ -64,6 +64,7 @@ def cmd_loop(q, lock):
     while 1:
         input()
         with lock:
+            print("Type 'win' 'loss' or 'draw' to record match result")
             cmd = input('> ')
 
         q.put(cmd)
@@ -77,7 +78,6 @@ def action_win(lock):
         print("win!")
     latest['state'] = 'win'
     write_latest()
-
 
 
 def action_loss(lock):
