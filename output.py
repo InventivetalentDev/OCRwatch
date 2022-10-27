@@ -138,6 +138,8 @@ def write_to_influx(result):
         .field("total_ally_elims", ally_total_elims) \
         .field("total_ememy_elims", enemy_total_elims) \
         .field("total_ally_deaths", ally_total_deaths) \
-        .field("total_enemy_deaths", enemy_total_deaths)
+        .field("total_enemy_deaths", enemy_total_deaths) \
+        .field("total_ally_assists", ally_total_assists) \
+        .field("total_enemy_assists", enemy_total_assists)
     print(p)
     influx_write_api.write(bucket="overwatch", record=p)
