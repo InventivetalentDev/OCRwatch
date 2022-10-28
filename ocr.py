@@ -1,4 +1,5 @@
 # Import required packages
+import configparser
 from datetime import datetime
 
 import cv2
@@ -57,6 +58,9 @@ pytesseract.pytesseract.tesseract_cmd = 'S:\Program Files\Tesseract-OCR\\tessera
 # each word instead of a sentence.
 rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 10))
 
+config = configparser.ConfigParser()
+config.read("config.ini")
+
 
 def crop_top_bottom(img):
     return img[2:-2, 0:-0]
@@ -69,11 +73,21 @@ def str_to_number(str):
     return int(str)
 
 
+def debug_json(name, json):
+    if config.getboolean("debug", "json"):
+        write_json(name, json)
+
+
+def debug_image(name, im):
+    if config.getboolean("debug", "images"):
+        cv2.imwrite(name, im)
+
+
 def process_self_name(im):
     rotated = rotate(im, -4)  # rotate to make the text straight
-    cv2.imwrite(f"dbg/name_rotated.jpg", rotated)
+    debug_image(f"dbg/name_rotated.jpg", rotated)
     cropped = rotated[16:38, 5:240]
-    cv2.imwrite(f"dbg/name_cropped.jpg", cropped)
+    debug_image(f"dbg/name_cropped.jpg", cropped)
     name = ocr(cropped, 0, "--psm 7 -c load_system_dawg=0").replace('\n', '')
     print("name", name)
 
@@ -86,7 +100,7 @@ def process_self_name(im):
 
 
 def process_self_hero(im):
-    cv2.imwrite(f"dbg/hero.jpg", im)
+    debug_image(f"dbg/hero.jpg", im)
     name = ocr(im, 0, f"--psm 7 -c load_system_dawg=0 tessedit_char_whitelist={zero_to_nine}", inv=True).replace('\n', '')
     print("hero", name)
 
@@ -100,7 +114,7 @@ def process_self_hero(im):
 
 def process_match_info(im):
     mode_map_img = im[0:mode_height, mode_offset:]
-    cv2.imwrite(f"dbg/mode.jpg", mode_map_img)
+    debug_image(f"dbg/mode.jpg", mode_map_img)
     mode_map = ocr(mode_map_img, 0, f"--psm 7  -c tessedit_char_whitelist=|:-{a_to_z}", crop=False).replace('\n', '')
     print("mode+map", mode_map)
 
@@ -119,7 +133,7 @@ def process_match_info(im):
         mode = mode[:-len("COMPETITIVE")]
 
     time_img = im[time_offset_y:time_offset_y + time_height, time_offset_x:time_offset_y + time_width]
-    cv2.imwrite(f"dbg/time.jpg", time_img)
+    debug_image(f"dbg/time.jpg", time_img)
     time = ocr(time_img, 0, f"--psm 7  -c tessedit_char_whitelist={zero_to_nine}:", crop=False).replace('\n', '')
     print("time", time)
 
@@ -161,39 +175,39 @@ def process_player_list(im, name_offs):
 
         name_img = im[row_y + row_padding:row_y + row_height - row_padding, name_offs:name_offs + name_width]
         # name_img = crop_top_bottom(name_img)
-        cv2.imwrite(f"dbg/name{i}.jpg", name_img)
+        debug_image(f"dbg/name{i}.jpg", name_img)
         name_img = deskew_player_name(name_img)
-        cv2.imwrite(f"dbg/name{i}_deskew.jpg", name_img)
+        debug_image(f"dbg/name{i}_deskew.jpg", name_img)
         name = ocr(name_img, i, "--psm 7 -c load_system_dawg=0").replace('\n', '')
         print("name", name)
 
         elims_img = im[row_y + row_padding:row_y + row_height - row_padding, elims_offset:elims_offset + elims_width]
-        cv2.imwrite(f"dbg/elims{i}.jpg", elims_img)
+        debug_image(f"dbg/elims{i}.jpg", elims_img)
         elims = str_to_number(ocr(elims_img, i, f"--psm 8 -c tessedit_char_whitelist={zero_to_nine}"))
         print("elims", elims)
 
         assist_img = im[row_y + row_padding:row_y + row_height - row_padding, assist_offset:assist_offset + assist_width]
-        cv2.imwrite(f"dbg/assist{i}.jpg", assist_img)
+        debug_image(f"dbg/assist{i}.jpg", assist_img)
         assists = str_to_number(ocr(assist_img, i, f"--psm 8 -c tessedit_char_whitelist={zero_to_nine}"))
         print("assists", assists)
 
         deaths_img = im[row_y + row_padding:row_y + row_height - row_padding, deaths_offset:deaths_offset + deaths_width]
-        cv2.imwrite(f"dbg/deaths{i}.jpg", deaths_img)
+        debug_image(f"dbg/deaths{i}.jpg", deaths_img)
         deaths = str_to_number(ocr(deaths_img, i, f"--psm 8 -c tessedit_char_whitelist={zero_to_nine}"))
         print("deaths", deaths)
 
         dmg_img = im[row_y + row_padding:row_y + row_height - row_padding, dmg_offset:dmg_offset + dmg_width]
-        cv2.imwrite(f"dbg/dmg{i}.jpg", dmg_img)
+        debug_image(f"dbg/dmg{i}.jpg", dmg_img)
         dmg = str_to_number(ocr(dmg_img, i, f"--psm 8 -c tessedit_char_whitelist={zero_to_nine},"))
         print("dmg", dmg)
 
         heal_img = im[row_y + row_padding:row_y + row_height - row_padding, heals_offset:heals_offset + heals_width]
-        cv2.imwrite(f"dbg/heal{i}.jpg", heal_img)
+        debug_image(f"dbg/heal{i}.jpg", heal_img)
         heal = str_to_number(ocr(heal_img, i, f"--psm 8 -c tessedit_char_whitelist={zero_to_nine},"))
         print("heal", heal)
 
         mit_img = im[row_y + row_padding:row_y + row_height - row_padding, mit_offset:mit_offset + mit_width]
-        cv2.imwrite(f"dbg/mit{i}.jpg", mit_img)
+        debug_image(f"dbg/mit{i}.jpg", mit_img)
         mit = str_to_number(ocr(mit_img, i, f"--psm 8 -c tessedit_char_whitelist={zero_to_nine},"))
         print("mit", mit)
 
@@ -215,7 +229,7 @@ def ocr(img, offs, args, crop=True, inv=False):
     # Performing OTSU threshold
     thr = cv2.THRESH_OTSU | cv2.THRESH_BINARY_INV if inv else cv2.THRESH_OTSU
     ret, thresh1 = cv2.threshold(img, 0, 255, thr)
-    cv2.imwrite(f"dbg/thresh{offs}.jpg", thresh1)
+    debug_image(f"dbg/thresh{offs}.jpg", thresh1)
 
     # Applying dilation on the threshold image
     dilation = cv2.dilate(thresh1, rect_kernel, iterations=1)
@@ -230,7 +244,7 @@ def ocr(img, offs, args, crop=True, inv=False):
     # # Drawing a rectangle on copied image
     im2 = img.copy()
     rect = cv2.rectangle(im2, (x, y), (x + w, y + h), (0, 255, 0), 2)
-    cv2.imwrite(f"dbg/contour{offs}.jpg", im2)
+    debug_image(f"dbg/contour{offs}.jpg", im2)
 
     if crop:
         # Cropping the text block for giving input to OCR
@@ -238,7 +252,7 @@ def ocr(img, offs, args, crop=True, inv=False):
     else:
         cropped = img
 
-    cv2.imwrite(f"dbg/cropped{offs}.jpg", cropped)
+    debug_image(f"dbg/cropped{offs}.jpg", cropped)
 
     text = pytesseract.image_to_string(cropped, config=args)
     return text
@@ -253,37 +267,37 @@ def process_screenshot(img):
     # Convert the image to gray scale
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    cv2.imwrite("gray.jpg", gray)
+    debug_image("gray.jpg", gray)
 
     self_hero = gray[self_hero_start[1]:self_hero_end[1], self_hero_start[0]:self_hero_end[0]]
-    cv2.imwrite("dbg/hero.jpg", self_hero)
+    debug_image("dbg/hero.jpg", self_hero)
     self_hero_info = process_self_hero(self_hero)
     print(self_hero_info)
-    write_json("hero.json", self_hero_info)
+    debug_json("hero.json", self_hero_info)
 
     self_name = gray[self_name_start[1]:self_name_end[1], self_name_start[0]:self_name_end[0]]
-    cv2.imwrite("dbg/name.jpg", self_name)
+    debug_image("dbg/name.jpg", self_name)
     self_name_info = process_self_name(self_name)
     print(self_name_info)
-    write_json("name.json", self_name_info)
+    debug_json("name.json", self_name_info)
 
     match = gray[match_info_start[1]:match_info_end[1], match_info_start[0]:match_info_end[0]]
-    cv2.imwrite("dbg/match.jpg", match)
+    debug_image("dbg/match.jpg", match)
     match_info = process_match_info(match)
     print(match_info)
-    write_json("match.json", match_info)
+    debug_json("match.json", match_info)
 
     allies = gray[allies_start[1]:allies_end[1], allies_start[0]:allies_end[0]]
-    cv2.imwrite("dbg/allies.jpg", allies)
+    debug_image("dbg/allies.jpg", allies)
     allies_info = process_player_list(allies, name_offset)
     print(allies_info)
-    write_json("allies.json", allies_info)
+    debug_json("allies.json", allies_info)
 
     enemies = gray[enemies_start[1]:enemies_end[1], enemies_start[0]:enemies_end[0]]
-    cv2.imwrite("dbg/enemies.jpg", enemies)
+    debug_image("dbg/enemies.jpg", enemies)
     enemies_info = process_player_list(enemies, name_offset_enemy)
     print(enemies_info)
-    write_json("enemies.json", enemies_info)
+    debug_json("enemies.json", enemies_info)
 
     return {
         "time": datetime.now().timestamp(),
