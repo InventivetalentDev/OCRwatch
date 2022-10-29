@@ -4,11 +4,21 @@ import threading
 import time
 import traceback
 
-from output import append_to_csv, write_to_influx, write_output
+from output import append_to_csv, write_to_influx, write_output, write_rank
 from screenshot import take_screenshot
 from ocr import process_screenshot_file, write_json
 
 import keyboard
+
+ranks = [
+    "b5", "b4", "b3", "b2", "b1",
+    "s5", "s4", "s3", "s2", "s1",
+    "g5", "g4", "g3", "g2", "g1",
+    "p5", "p4", "p3", "p2", "p1",
+    "d5", "d4", "d3", "d2", "d1",
+    "m5", "m4", "m3", "m2", "m1",
+    "gm5", "gm4", "gm3", "gm2", "gm1"
+]
 
 latest = {}
 
@@ -125,8 +135,12 @@ def main():
         cmd = cmd_queue.get()
         if cmd == 'quit':
             break
-        action = cmd_actions.get(cmd, invalid_input)
-        action(stdout_lock)
+        if cmd in ranks:
+            print("Tracking comp rank", cmd)
+            write_rank(cmd, ranks)
+        else:
+            action = cmd_actions.get(cmd, invalid_input)
+            action(stdout_lock)
 
 
 main()
