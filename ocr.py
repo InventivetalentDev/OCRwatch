@@ -142,13 +142,14 @@ def process_match_info(im):
     time = ocr(time_img, 0, f"--psm 7  -c tessedit_char_whitelist={zero_to_nine}:", crop=False).replace('\n', '')
     debug("time", time)
 
+    datetime.strptime(time, "%M:%S")
+
     return {
         "mode_map": mode_map,
         "mode": mode,
         "map": map,
         "competitive": is_comp,
-        "time": time,
-        "time_parsed":  datetime.strptime(time, "%M:%S")
+        "time": time
     }
 
 
