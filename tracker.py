@@ -19,6 +19,7 @@ def track(lock):
     try:
         screenshot_name = take_screenshot()
         with lock:
+            print("Processing...")
             result = process_screenshot_file(screenshot_name)
 
         latest = result
@@ -44,7 +45,7 @@ def track_loop(lock):
                 print('Tab pressed!')
                 tab_pressed_time += 1
                 time.sleep(0.1)
-                if (tab_pressed_time == 5):  # only track once at 3 ticks, then wait until tab is released again
+                if (tab_pressed_time == 3):  # only track once at 3 ticks, then wait until tab is released again
                     tab_pressed_time = 0
                     print('track')
                     track(lock)
@@ -52,7 +53,7 @@ def track_loop(lock):
                 continue
 
             tab_pressed_time = 0
-            time.sleep(1)
+            time.sleep(0.5)
 
         except:
             print("loop broke")

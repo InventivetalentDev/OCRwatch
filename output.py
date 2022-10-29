@@ -61,9 +61,12 @@ def write_to_influx(result):
 
     print("")
     print("")
+    print("")
 
     print(result['match']['mode'] + " - " + ("Competitive" if result['match']['competitive'] else "Quick Play") + " | " + result['match']['map'])
     print("Time: " + result['match']['time'])
+
+    print("")
 
     headers = ["Name", "E", "A", "D", "Damage", "Heal", "MIT"]
 
@@ -94,7 +97,11 @@ def write_to_influx(result):
         row.append(result['players']['allies'][i]['mit'])
         ally_table.append(row)
 
+    ally_table.append(["=> TOTAL", ally_total_elims, ally_total_assists, ally_total_deaths, ally_total_dmg, ally_total_heal, ally_total_mit])
+    print("Allies:")
     print(tabulate(ally_table, headers=headers, tablefmt="grid"))
+
+    print("")
 
     enemy_total_elims = 0
     enemy_total_assists = 0
@@ -123,8 +130,14 @@ def write_to_influx(result):
         row.append(result['players']['enemies'][i]['mit'])
         enemy_table.append(row)
 
+    enemy_table.append(["=> TOTAL", enemy_total_elims, enemy_total_assists, enemy_total_deaths, enemy_total_dmg, enemy_total_heal, enemy_total_mit])
+    print("Enemies:")
     print(tabulate(enemy_table, headers=headers, tablefmt="grid"))
 
+    print("")
+    print(">", result['state'])
+
+    print("")
     print("")
     print("")
 

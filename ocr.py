@@ -83,13 +83,18 @@ def debug_image(name, im):
         cv2.imwrite(name, im)
 
 
+def debug(*values):
+    if config.getboolean("debug", "log"):
+        print(*values)
+
+
 def process_self_name(im):
     rotated = rotate(im, -4)  # rotate to make the text straight
     debug_image(f"dbg/name_rotated.jpg", rotated)
     cropped = rotated[16:38, 5:240]
     debug_image(f"dbg/name_cropped.jpg", cropped)
     name = ocr(cropped, 0, "--psm 7 -c load_system_dawg=0").replace('\n', '')
-    print("name", name)
+    debug("name", name)
 
     if len(name) <= 0:
         raise Exception("empty name")
@@ -102,7 +107,7 @@ def process_self_name(im):
 def process_self_hero(im):
     debug_image(f"dbg/hero.jpg", im)
     name = ocr(im, 0, f"--psm 7 -c load_system_dawg=0 tessedit_char_whitelist={zero_to_nine}", inv=True).replace('\n', '')
-    print("hero", name)
+    debug("hero", name)
 
     if len(name) <= 0:
         raise Exception("empty hero")
@@ -116,7 +121,7 @@ def process_match_info(im):
     mode_map_img = im[0:mode_height, mode_offset:]
     debug_image(f"dbg/mode.jpg", mode_map_img)
     mode_map = ocr(mode_map_img, 0, f"--psm 7  -c tessedit_char_whitelist=|:-{a_to_z}", crop=False).replace('\n', '')
-    print("mode+map", mode_map)
+    debug("mode+map", mode_map)
 
     mode, map, *rest = mode_map.split("|")
 
@@ -135,7 +140,7 @@ def process_match_info(im):
     time_img = im[time_offset_y:time_offset_y + time_height, time_offset_x:time_offset_y + time_width]
     debug_image(f"dbg/time.jpg", time_img)
     time = ocr(time_img, 0, f"--psm 7  -c tessedit_char_whitelist={zero_to_nine}:", crop=False).replace('\n', '')
-    print("time", time)
+    debug("time", time)
 
     return {
         "mode_map": mode_map,
@@ -179,37 +184,37 @@ def process_player_list(im, name_offs):
         name_img = deskew_player_name(name_img)
         debug_image(f"dbg/name{i}_deskew.jpg", name_img)
         name = ocr(name_img, i, "--psm 7 -c load_system_dawg=0").replace('\n', '')
-        print("name", name)
+        debug("name", name)
 
         elims_img = im[row_y + row_padding:row_y + row_height - row_padding, elims_offset:elims_offset + elims_width]
         debug_image(f"dbg/elims{i}.jpg", elims_img)
         elims = str_to_number(ocr(elims_img, i, f"--psm 8 -c tessedit_char_whitelist={zero_to_nine}"))
-        print("elims", elims)
+        debug("elims", elims)
 
         assist_img = im[row_y + row_padding:row_y + row_height - row_padding, assist_offset:assist_offset + assist_width]
         debug_image(f"dbg/assist{i}.jpg", assist_img)
         assists = str_to_number(ocr(assist_img, i, f"--psm 8 -c tessedit_char_whitelist={zero_to_nine}"))
-        print("assists", assists)
+        debug("assists", assists)
 
         deaths_img = im[row_y + row_padding:row_y + row_height - row_padding, deaths_offset:deaths_offset + deaths_width]
         debug_image(f"dbg/deaths{i}.jpg", deaths_img)
         deaths = str_to_number(ocr(deaths_img, i, f"--psm 8 -c tessedit_char_whitelist={zero_to_nine}"))
-        print("deaths", deaths)
+        debug("deaths", deaths)
 
         dmg_img = im[row_y + row_padding:row_y + row_height - row_padding, dmg_offset:dmg_offset + dmg_width]
         debug_image(f"dbg/dmg{i}.jpg", dmg_img)
         dmg = str_to_number(ocr(dmg_img, i, f"--psm 8 -c tessedit_char_whitelist={zero_to_nine},"))
-        print("dmg", dmg)
+        debug("dmg", dmg)
 
         heal_img = im[row_y + row_padding:row_y + row_height - row_padding, heals_offset:heals_offset + heals_width]
         debug_image(f"dbg/heal{i}.jpg", heal_img)
         heal = str_to_number(ocr(heal_img, i, f"--psm 8 -c tessedit_char_whitelist={zero_to_nine},"))
-        print("heal", heal)
+        debug("heal", heal)
 
         mit_img = im[row_y + row_padding:row_y + row_height - row_padding, mit_offset:mit_offset + mit_width]
         debug_image(f"dbg/mit{i}.jpg", mit_img)
         mit = str_to_number(ocr(mit_img, i, f"--psm 8 -c tessedit_char_whitelist={zero_to_nine},"))
-        print("mit", mit)
+        debug("mit", mit)
 
         out.append({
             "name": name,
@@ -272,31 +277,31 @@ def process_screenshot(img):
     self_hero = gray[self_hero_start[1]:self_hero_end[1], self_hero_start[0]:self_hero_end[0]]
     debug_image("dbg/hero.jpg", self_hero)
     self_hero_info = process_self_hero(self_hero)
-    print(self_hero_info)
+    debug(self_hero_info)
     debug_json("hero.json", self_hero_info)
 
     self_name = gray[self_name_start[1]:self_name_end[1], self_name_start[0]:self_name_end[0]]
     debug_image("dbg/name.jpg", self_name)
     self_name_info = process_self_name(self_name)
-    print(self_name_info)
+    debug(self_name_info)
     debug_json("name.json", self_name_info)
 
     match = gray[match_info_start[1]:match_info_end[1], match_info_start[0]:match_info_end[0]]
     debug_image("dbg/match.jpg", match)
     match_info = process_match_info(match)
-    print(match_info)
+    debug(match_info)
     debug_json("match.json", match_info)
 
     allies = gray[allies_start[1]:allies_end[1], allies_start[0]:allies_end[0]]
     debug_image("dbg/allies.jpg", allies)
     allies_info = process_player_list(allies, name_offset)
-    print(allies_info)
+    debug(allies_info)
     debug_json("allies.json", allies_info)
 
     enemies = gray[enemies_start[1]:enemies_end[1], enemies_start[0]:enemies_end[0]]
     debug_image("dbg/enemies.jpg", enemies)
     enemies_info = process_player_list(enemies, name_offset_enemy)
-    print(enemies_info)
+    debug(enemies_info)
     debug_json("enemies.json", enemies_info)
 
     return {
