@@ -154,7 +154,7 @@ def write_to_influx(result):
         .tag("state", result['state']) \
         .field("duration", duration.total_seconds()) \
         .field("total_ally_elims", ally_total_elims) \
-        .field("total_ememy_elims", enemy_total_elims) \
+        .field("total_enemy_elims", enemy_total_elims) \
         .field("total_ally_deaths", ally_total_deaths) \
         .field("total_enemy_deaths", enemy_total_deaths) \
         .field("total_ally_assists", ally_total_assists) \
