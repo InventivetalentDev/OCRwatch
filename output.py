@@ -164,7 +164,7 @@ def write_to_influx(result):
 
 
 def write_rank_to_influx(rank, ranks):
-    ind = len(ranks) - ranks.index(rank)
+    ind = ranks.index(rank)
     p = Point("rank") \
         .tag("rank", rank) \
         .field("rank", ind)
