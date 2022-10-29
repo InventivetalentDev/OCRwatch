@@ -147,7 +147,8 @@ def process_match_info(im):
         "mode": mode,
         "map": map,
         "competitive": is_comp,
-        "time": time
+        "time": time,
+        "time_parsed":  datetime.strptime(time, "%M:%S")
     }
 
 

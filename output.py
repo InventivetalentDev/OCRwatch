@@ -61,7 +61,7 @@ influx_write_api = influx_client.write_api(write_options=SYNCHRONOUS)
 
 
 def write_to_influx(result):
-    parsed_time = datetime.strptime(result['match']['time'], "%M:%S")
+    parsed_time = result['match']['time_parsed']
     duration = timedelta(minutes=parsed_time.minute, seconds=parsed_time.second)
 
     print("")
