@@ -26,17 +26,20 @@ latest = {}
 def track(lock):
     global latest
 
+    start = time.time()
+
     try:
         screenshot_name = take_screenshot()
         with lock:
             print("Processing...")
             result = process_screenshot_file(screenshot_name)
 
+        end = time.time()
+        print(f"Took {end - start}s")
+
         latest = result
 
         write_latest()
-
-
 
     except:
         print("track() broke")
