@@ -30,16 +30,17 @@ def track(lock):
 
     try:
         screenshot_name = take_screenshot()
-        with lock:
-            print("Processing...")
-            result = process_screenshot_file(screenshot_name)
+        if keyboard.is_pressed('tab'):
+            with lock:
+                print("Processing...")
+                result = process_screenshot_file(screenshot_name)
 
-        end = time.time()
-        print(f"Took {end - start}s")
+            end = time.time()
+            print(f"Took {end - start}s")
 
-        latest = result
+            latest = result
 
-        write_latest()
+            write_latest()
 
     except:
         print("track() broke")
