@@ -1,6 +1,11 @@
+import configparser
+
 from mss import mss
 
-monitor = 2
+config = configparser.ConfigParser()
+config.read("config.ini")
+
+monitor = config.getint("input", "monitor")
 
 
 def take_screenshot():
