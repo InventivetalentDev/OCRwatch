@@ -5,10 +5,13 @@ Using OCR to track team performance in Overwatch 2
 While this app is running, it listens for key presses of `Tab` and takes a screenshot of the scoreboard if it's held for more than 0.5 seconds.  
 It then applies OCR on that screen, including mode and map info, which hero you're playing and stats of you and other players in your game (kills, deaths, healing, etc.) and saves that data.
 
-![image](https://user-images.githubusercontent.com/6525296/197821711-60773e50-ae40-4565-9970-436d10cbce9f.png)
+![image](https://user-images.githubusercontent.com/6525296/199619575-3fd903cf-c10d-42b0-882f-e35f388b66b7.png)
 
 
-![image](https://user-images.githubusercontent.com/6525296/197821504-7d1cf908-e92b-48ac-a902-02763f6b319d.png)
+
+![image](https://user-images.githubusercontent.com/6525296/199619556-92f26629-4d76-48b0-9b1c-aa7aa874069e.png)
+
+
 
 [Example Dashboard](https://gist.github.com/InventivetalentDev/03b64b8fe516d86cebd2d1f3405c57cc)
 
