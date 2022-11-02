@@ -43,9 +43,8 @@ def track(lock):
             write_latest()
 
     except:
-        print("track() broke")
+        print('track() broke')
         print(traceback.format_exc())
-
 
 def write_latest():
     write_output(latest)
@@ -146,5 +145,5 @@ def main():
             action = cmd_actions.get(cmd, invalid_input)
             action(stdout_lock)
 
-
-main()
+if __name__ == '__main__':
+    main()
