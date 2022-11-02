@@ -1,8 +1,15 @@
+import configparser
 import csv
+import os.path
 import queue
 import threading
 import time
 import traceback
+
+if not os.path.isfile("config.ini"):
+    print("config.ini not found!")
+    time.sleep(5)
+    exit(1)
 
 from output import append_to_csv, write_to_influx, write_output, write_rank
 from screenshot import take_screenshot
