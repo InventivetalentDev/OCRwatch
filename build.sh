@@ -1,2 +1,2 @@
 #!/bin/sh
-pyinstaller -F ./tracker.py
+pyinstaller -c -F ./tracker.py
