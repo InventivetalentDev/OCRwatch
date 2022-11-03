@@ -29,4 +29,5 @@ python tracker.py
 ```
 
 Launch Overwatch, play some games and remember to press Tab a couple of times! (you're probably doing that anyway)  
-You might want to keep the console window open on a second screen to take a look at the results.
+You might want to keep the console window open on a second screen to take a look at the results.  
+Note: this currently only supports 16:9 aspect ratios, since the screen coordinates of the ingame UI elements are based on a 1920x1080 display.
