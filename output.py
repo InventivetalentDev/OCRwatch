@@ -21,9 +21,9 @@ def write_output(result):
         write_to_influx(result)
 
 
-def write_rank(rank, ranks):
+def write_rank(role, rank, ranks):
     if config.getboolean("output", "influx"):
-        write_rank_to_influx(rank, ranks)
+        write_rank_to_influx(role, rank, ranks)
 
 
 def write_to_json(result):
@@ -203,9 +203,10 @@ def write_to_influx(result):
     influx_write_api.write(bucket="overwatch", record=p)
 
 
-def write_rank_to_influx(rank, ranks):
+def write_rank_to_influx(role, rank, ranks):
     ind = ranks.index(rank)
     p = Point("rank") \
+        .tag("role", role) \
         .tag("rank", rank) \
         .field("rank", ind)
     print(p)

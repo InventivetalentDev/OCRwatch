@@ -65,7 +65,7 @@ def track_loop(lock):
                 print('Tab pressed!')
                 tab_pressed_time += 1
                 time.sleep(0.1)
-                if (tab_pressed_time == 3):  # only track once at 3 ticks, then wait until tab is released again
+                if (tab_pressed_time == 2):  # only track once at 2 ticks, then wait until tab is released again
                     tab_pressed_time = 0
                     print('track')
                     track(lock)
@@ -85,7 +85,12 @@ def cmd_loop(q, lock):
     while 1:
         input()
         with lock:
-            print("Type '[w]in' '[l]oss' or '[d]raw' to record result of latest match - or 'quit' to exit")
+            print("Commands:")
+            print("- quit")
+            print("- [w]in")
+            print("- [l]oss")
+            print("- [d]raw")
+            print("- rank <tank|dps|heal> <rank (g1,p5,gm2,b3, etc.)>")
             cmd = input('> ')
 
         q.put(cmd)
@@ -94,26 +99,33 @@ def cmd_loop(q, lock):
             break
 
 
-def action_win(lock):
+def action_win(lock, args):
     with lock:
         print("win!")
     latest['state'] = 'win'
     write_latest()
 
 
-def action_loss(lock):
+def action_loss(lock, args):
     with lock:
         print("loss")
     latest['state'] = 'loss'
     write_latest()
 
 
-def action_draw(lock):
+def action_draw(lock, args):
     with lock:
         print("draw")
     latest['state'] = 'draw'
     write_latest()
 
+
+def action_rank(lock, args):
+    role = args[0]
+    rank = args[1]
+    with lock:
+        print("Tracking rank", role, rank)
+        write_rank(role, rank, ranks)
 
 def invalid_input(lock):
     with lock:
@@ -127,7 +139,8 @@ def main():
         'loss': action_loss,
         'l': action_loss,
         'draw': action_draw,
-        'd': action_draw
+        'd': action_draw,
+        'rank': action_rank
     }
     cmd_queue = queue.Queue()
     stdout_lock = threading.Lock()
@@ -143,14 +156,15 @@ def main():
         track_thread.join(1)
 
         cmd = cmd_queue.get()
+        split = cmd.split(' ')
+        cmd = split[0]
+        args = split[1:]
+        print(cmd)
+        print(args)
         if cmd == 'quit':
             break
-        if cmd in ranks:
-            print("Tracking comp rank", cmd)
-            write_rank(cmd, ranks)
-        else:
-            action = cmd_actions.get(cmd, invalid_input)
-            action(stdout_lock)
+        action = cmd_actions.get(cmd, invalid_input)
+        action(stdout_lock, args)
 
 if __name__ == '__main__':
     main()
