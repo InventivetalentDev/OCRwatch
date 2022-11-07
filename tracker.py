@@ -127,7 +127,7 @@ def action_rank(lock, args):
         print("Tracking rank", role, rank)
         write_rank(role, rank, ranks)
 
-def invalid_input(lock):
+def invalid_input(lock, args):
     with lock:
         print('---> Unknown command')
 
