@@ -6,7 +6,7 @@ from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 from tabulate import tabulate
 
-from util import write_json
+from util import write_json, tme
 
 config = configparser.ConfigParser()
 config.read("config.ini")
@@ -199,7 +199,7 @@ def write_to_influx(result):
         .field("total_enemy_deaths", enemy_total_deaths) \
         .field("total_ally_assists", ally_total_assists) \
         .field("total_enemy_assists", enemy_total_assists)
-    print(p)
+    print(tme(), p)
     influx_write_api.write(bucket="overwatch", record=p)
 
 

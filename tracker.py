@@ -6,6 +6,8 @@ import threading
 import time
 import traceback
 
+from util import tme
+
 if not os.path.isfile("config.ini"):
     print("config.ini not found!")
     time.sleep(5)
@@ -39,19 +41,20 @@ def track(lock):
         screenshot_name = take_screenshot()
         if keyboard.is_pressed('tab'):
             with lock:
-                print("Processing...")
+                print(tme(), "Processing...")
                 result = process_screenshot_file(screenshot_name)
 
             end = time.time()
-            print(f"Took {end - start}s")
+            print(time.time(), f"Took {end - start}s")
 
             latest = result
 
             write_latest()
 
     except:
-        print('track() broke')
+        print(tme(), 'track() broke')
         print(traceback.format_exc())
+
 
 def write_latest():
     write_output(latest)
@@ -62,12 +65,12 @@ def track_loop(lock):
     while 1:
         try:
             if keyboard.is_pressed('tab'):
-                print('Tab pressed!')
+                print(tme(), 'Tab pressed!')
                 tab_pressed_time += 1
                 time.sleep(0.1)
                 if (tab_pressed_time == 2):  # only track once at 2 ticks, then wait until tab is released again
                     tab_pressed_time = 0
-                    print('track')
+                    print(tme(), 'track')
                     track(lock)
                     time.sleep(10)  # wait a bit before tracking again
                 continue
@@ -76,12 +79,12 @@ def track_loop(lock):
             time.sleep(0.5)
 
         except:
-            print("loop broke")
+            print(tme(), "loop broke")
             break
 
 
 def cmd_loop(q, lock):
-    print("Use Enter to switch to input mode")
+    print(tme(), "Use Enter to switch to input mode")
     while 1:
         input()
         with lock:
@@ -95,7 +98,7 @@ def cmd_loop(q, lock):
 
         q.put(cmd)
         if cmd == 'quit':
-            print("break")
+            print(tme(), "break")
             break
 
 
@@ -126,6 +129,7 @@ def action_rank(lock, args):
     with lock:
         print("Tracking rank", role, rank)
         write_rank(role, rank, ranks)
+
 
 def invalid_input(lock, args):
     with lock:
@@ -165,6 +169,7 @@ def main():
             break
         action = cmd_actions.get(cmd, invalid_input)
         action(stdout_lock, args)
+
 
 if __name__ == '__main__':
     main()

@@ -1,4 +1,6 @@
 import json
+import time
+from datetime import datetime
 
 import cv2
 
@@ -20,3 +22,6 @@ def rotate(image, angle, center=None, scale=1.0):
 def write_json(file, data):
     with open(file, 'w') as f:
         json.dump(data, f, indent=4)
+
+def tme():
+    return datetime.utcnow().strftime('%H:%M:%S.%f')
