@@ -32,7 +32,7 @@ ranks = [
 latest = {}
 
 
-def track(lock):
+def track(lock) -> bool:
     global latest
 
     start = time.time()
@@ -50,10 +50,13 @@ def track(lock):
             latest = result
 
             write_latest()
+            return True
 
     except:
         print(tme(), 'track() broke')
         print(traceback.format_exc())
+
+    return False
 
 
 def write_latest():
@@ -71,8 +74,8 @@ def track_loop(lock):
                 if (tab_pressed_time == 2):  # only track once at 2 ticks, then wait until tab is released again
                     tab_pressed_time = 0
                     print(tme(), 'track')
-                    track(lock)
-                    time.sleep(10)  # wait a bit before tracking again
+                    if track(lock):
+                        time.sleep(10)  # wait a bit before tracking again
                 continue
 
             tab_pressed_time = 0
