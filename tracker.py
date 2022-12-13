@@ -71,7 +71,7 @@ def track_loop(lock):
                 print(tme(), 'Tab pressed!')
                 tab_pressed_time += 1
                 time.sleep(0.1)
-                if (tab_pressed_time == 2):  # only track once at 2 ticks, then wait until tab is released again
+                if (tab_pressed_time == 1):  # only track once at 2 ticks, then wait until tab is released again
                     tab_pressed_time = 0
                     print(tme(), 'track')
                     if track(lock):
@@ -96,7 +96,7 @@ def cmd_loop(q, lock):
             print("- [w]in")
             print("- [l]oss")
             print("- [d]raw")
-            print("- rank <tank|dps|heal> <rank (g1,p5,gm2,b3, etc.)>")
+            print("- rank <tank|dps|heal|all> <rank (g1,p5,gm2,b3, etc.)>")
             cmd = input('> ')
 
         q.put(cmd)
