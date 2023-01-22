@@ -13,7 +13,7 @@ if not os.path.isfile("config.ini"):
     time.sleep(5)
     exit(1)
 
-from output import append_to_csv, write_to_influx, write_output, write_rank
+from output import append_to_csv, write_to_influx, write_output, write_rank, write_sr_to_influx
 from screenshot import take_screenshot
 from ocr import process_screenshot_file, write_json
 
@@ -97,6 +97,7 @@ def cmd_loop(q, lock):
             print("- [l]oss")
             print("- [d]raw")
             print("- rank <tank|dps|heal|all> <rank (g1,p5,gm2,b3, etc.)>")
+            print("- sr <tank|dps|heal|all> <sr>")
             cmd = input('> ')
 
         q.put(cmd)
@@ -133,6 +134,12 @@ def action_rank(lock, args):
         print("Tracking rank", role, rank)
         write_rank(role, rank, ranks)
 
+def action_sr(lock, args):
+    role = args[0]
+    sr = args[1]
+    with lock:
+        print("Tracking SR", role, sr)
+        write_sr_to_influx(role, int(sr))
 
 def invalid_input(lock, args):
     with lock:
@@ -147,7 +154,8 @@ def main():
         'l': action_loss,
         'draw': action_draw,
         'd': action_draw,
-        'rank': action_rank
+        'rank': action_rank,
+        'sr': action_sr
     }
     cmd_queue = queue.Queue()
     stdout_lock = threading.Lock()
