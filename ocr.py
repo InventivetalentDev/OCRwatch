@@ -52,7 +52,7 @@ config = configparser.ConfigParser()
 config.read("config.ini")
 
 # Mention the installed location of Tesseract-OCR in your system
-pytesseract.pytesseract.tesseract_cmd = config.getboolean("input", "tesseract_path")
+pytesseract.pytesseract.tesseract_cmd = config.get("input", "tesseract_path")
 
 # Specify structure shape and kernel size.
 # Kernel size increases or decreases the area
