@@ -215,7 +215,6 @@ def write_rank_to_influx(role, rank, ranks):
 
 def write_sr_to_influx(role, sr):
     p = Point("sr") \
-       # .time(1669204800000, write_precision=WritePrecision.MS) \
         .tag("role", role) \
         .field("sr", sr)
     print(p)
